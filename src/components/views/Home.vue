@@ -6,7 +6,6 @@ import Button from '../common/Button.vue';
 import { store } from '../../common/store';
 import ProfileMenu from '../common/ProfileMenu.vue';
 
-const username = ref('USER');
 const jettonSymbol = ref(import.meta.env.VITE_JETTON_SYMBOL);
 const hapticFeedback = initHapticFeedback();
 const bounceKey = ref(0);
@@ -46,7 +45,7 @@ const sendTransaction = () => {
 };
 
 const showUsernameInstructions = () => {
-  if (username.value === 'USER') {
+  if (store.user.username === null || store.user.username !== '') {
     showInstructionsModal.value = true;
   }
 };
@@ -54,13 +53,17 @@ const showUsernameInstructions = () => {
 const animateTimeout = ref(null);
 const isIconAnimated = ref(null);
 
+let unsubscribeModal = null;
 onMounted(() => {
-  const telegram = window.Telegram.WebApp;
   store.telegram.initConnectWalletButton('ton-connect-button');
 
-  if (telegram.initDataUnsafe && telegram.initDataUnsafe.user) {
-    username.value = telegram.initDataUnsafe.user.username || 'USER';
-  }
+  unsubscribeModal = store.telegram.tonConnectUI.onModalStateChange(
+    async (state) => {
+      if (state.status === 'closed' && state.closeReason === 'wallet-selected') {
+        await store.telegram.initWallet();
+      }
+    }
+  );
 
   animateTimeout.value = setTimeout(() => {
     isIconAnimated.value = false;
@@ -77,7 +80,7 @@ onMounted(() => {
       <div class="w-full flex justify-between items-center mb-4">
         <div class="flex items-center p-3 bg-blue-500 rounded-lg shadow-lg" @click="showUsernameInstructions">
           <img src="/SatoshiAvatar.png" alt="Satoshi" class="w-10 h-10 rounded-full mr-2" />
-          <span class="text-white text-sm font-black font-mono cursor-pointer">{{ store.user.username }}</span>
+          <span class="text-white text-sm font-black font-mono cursor-pointer">{{ store.user?.username ?? 'User' }}</span>
         </div>
 
         <div class="p-2 bg-blue-500 rounded-lg shadow-lg aspect-square text-white">
