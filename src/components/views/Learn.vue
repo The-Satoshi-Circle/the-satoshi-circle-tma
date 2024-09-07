@@ -37,7 +37,7 @@ const modalDescription = ref('');
 
 // @todo: put images on db
 const taskImage = (id) => {
-  return `/logo${id}.png`;
+  return `${import.meta.env.BASE_URL}logo${id}.png`;
 }
 
 const completeTask = async (taskId) => {
@@ -49,6 +49,10 @@ const completeTask = async (taskId) => {
     modalDescription.value = `Hai ricevuto ${response.new_coins} ${import.meta.env.VITE_JETTON_SYMBOL} come ricompensa!`
 
     store.user.coins += parseInt(response.new_coins);
+
+    const response = await store.api.getTasks();
+
+    tasks.value = response.tasks;
   }
 }
 
