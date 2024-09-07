@@ -9,6 +9,8 @@ interface API {
   sendTaps: (taps: number) => Promise<Response | undefined>;
   getTasks: () => Promise<Response | undefined>;
   saveTask: (taskId: string) => Promise<Response | undefined>;
+  getSurveys: () => Promise<Response | undefined>;
+  saveSurvey: (surveyId: string, survey: string) => Promise<Response | undefined>;
 }
 
 export const API: Reactive<API> = reactive<API>({
@@ -120,6 +122,41 @@ export const API: Reactive<API> = reactive<API>({
             "Content-Type": "application/json",
             Authorization: `Bearer ${this.apiToken}`,
           }
+        }
+      );
+
+      return response.json();
+    }
+  },
+  async getSurveys(): Promise<Response | undefined> {
+    if (this.apiToken) {
+      const response = await fetch(
+        import.meta.env.VITE_API_BASE_URL + "/surveys",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiToken}`,
+          }
+        }
+      );
+
+      return response.json();
+    }
+  },
+  async saveSurvey(surveyId: string, survey: string): Promise<Response | undefined> {
+    if (this.apiToken) {
+      const response = await fetch(
+        import.meta.env.VITE_API_BASE_URL + "/surveys/" + surveyId,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiToken}`,
+          },
+          body: JSON.stringify({
+            survey: survey,
+          }),
         }
       );
 

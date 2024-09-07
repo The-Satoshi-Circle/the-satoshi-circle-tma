@@ -1,12 +1,18 @@
 <script setup>
 import { ref, onMounted} from 'vue';
+import Button from '../common/Button.vue';
+import { store } from '../../common/store';
 
 // Stato del completamento del questionario
 const isCompleted = ref(false);
 
-// Carica lo stato di completamento dal localStorage
-onMounted(() => {
-  isCompleted.value = localStorage.getItem('questionnaireCompleted') === 'true';
+onMounted(async () => {
+  const surveysResponse = await store.api.getSurveys();
+
+  // sappiamo già che il survey al momento è il primo
+  if(surveysResponse.surveys[0].done === true) {
+    isCompleted.value = true;
+  }
 });
 
 const currentQuestionIndex = ref(0); // Dati del questionario
@@ -61,39 +67,33 @@ const questions = ref([
   }
 ]);
 
+const nextQuestion = () => {
+  if(questions.value[currentQuestionIndex.value].answer && questions.value[currentQuestionIndex.value].answer.length > 0) {
+    currentQuestionIndex.value++;
+  }
+}
+
 const clearOtherAnswer = function (question) {
   if (question.answer !== 'Altro') {
     question.otherAnswer = '';
   }
 }
 
-const submitAnswers = function () {
-  const results = questions.value.map(question => {
-    return {
-      question: question.question,
-      answer: question.answer === 'Altro' ? question.otherAnswer : question.answer
-    };
-  });
+const submitAnswers = async () => {
+  if(questions.value[currentQuestionIndex.value].answer && questions.value[currentQuestionIndex.value].answer.length > 0) {
+    const survey = questions.value.map(question => {
+      return {
+        question: question.question,
+        answer: question.answer === 'Altro' ? question.otherAnswer : question.answer
+      };
+    });
 
-  console.log(results);
+    const response = await store.api.saveSurvey(1, survey);
 
-  const jsonContent = JSON.stringify(results, null, 2);
-  saveToFile(jsonContent, 'questionnaire_responses.json');
-    
-  
-  // Salva lo stato di completamento del questionario
-    localStorage.setItem('questionnaireCompleted', 'true');
-  isCompleted.value = true; // Imposta il questionario come completato
-};
-
-const saveToFile = function (content, filename) {
-  const blob = new Blob([content], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+    if(response.status === 'success') {
+      isCompleted.value = true;
+    }
+  }
 };
 </script>
 
@@ -145,23 +145,11 @@ const saveToFile = function (content, filename) {
           </div>
 
           <div class="navigation-buttons">
-            <button v-if="currentQuestionIndex === questions.length - 1" @click="submitAnswers" class="button-submit">Invia Risposte</button>
+            <Button v-if="currentQuestionIndex === questions.length - 1" @click="submitAnswers" class="button-submit">Invia Risposte</Button>
           </div>
 
-          <!-- Sostituisci i pulsanti con le frecce -->
-          <div class="navigation-arrows">
-            <span v-if="currentQuestionIndex > 0" @click="currentQuestionIndex--" class="arrow arrow-left">
-              <!-- Freccia indietro -->
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                <path fill="currentColor" d="M15 19l-7-7 7-7"/>
-              </svg>
-            </span>
-            <span v-if="currentQuestionIndex < questions.length - 1" @click="currentQuestionIndex++" class="arrow arrow-right">
-              <!-- Freccia avanti -->
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                <path fill="currentColor" d="M9 19l7-7-7-7"/>
-              </svg>
-            </span>
+          <div>
+            <Button @click="nextQuestion()" v-if="currentQuestionIndex < questions.length - 1">Avanti</Button>
           </div>
         </div>
       </transition>

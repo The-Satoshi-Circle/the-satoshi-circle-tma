@@ -16,11 +16,11 @@
   </div>
 
   <Modal :isOpen="modalOpen" @close="modalOpen = false" :confirmButtonEnabled="false" :cancelButtonText="'Ok'"
-        :title="modalTitle">
-        <p class="text-center">
-          {{ modalDescription }}
-        </p>
-      </Modal>
+    :title="modalTitle">
+    <p class="text-center">
+      {{ modalDescription }}
+    </p>
+  </Modal>
 </template>
 
 <script setup>
@@ -43,7 +43,7 @@ const taskImage = (id) => {
 const completeTask = async (taskId) => {
   const response = await store.api.saveTask(taskId);
 
-  if(response.status === 'success') {
+  if (response.status === 'success') {
     modalOpen.value = true;
     modalTitle.value = 'Task completato!';
     modalDescription.value = `Hai ricevuto ${response.new_coins} ${import.meta.env.VITE_JETTON_SYMBOL} come ricompensa!`
