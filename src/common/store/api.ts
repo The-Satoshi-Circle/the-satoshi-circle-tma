@@ -7,6 +7,8 @@ interface API {
   init: () => Promise<InitResponse | undefined>
   authorize: (initDataRaw: string) => Promise<UserResponse | undefined>;
   sendTaps: (taps: number) => Promise<Response | undefined>;
+  getTasks: () => Promise<Response | undefined>;
+  saveTask: (taskId: string) => Promise<Response | undefined>;
 }
 
 export const API: Reactive<API> = reactive<API>({
@@ -90,6 +92,38 @@ export const API: Reactive<API> = reactive<API>({
       );
 
       return response;
+    }
+  },
+  async getTasks(): Promise<Response | undefined> {
+    if (this.apiToken) {
+      const response = await fetch(
+        import.meta.env.VITE_API_BASE_URL + "/tasks",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiToken}`,
+          }
+        }
+      );
+
+      return response.json();
+    }
+  },
+  async saveTask(taskId: string): Promise<Response | undefined> {
+    if (this.apiToken) {
+      const response = await fetch(
+        import.meta.env.VITE_API_BASE_URL + "/tasks/" + taskId,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiToken}`,
+          }
+        }
+      );
+
+      return response.json();
     }
   },
 });
