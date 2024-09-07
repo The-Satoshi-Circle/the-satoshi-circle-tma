@@ -37,7 +37,7 @@ const modalDescription = ref('');
 
 // @todo: put images on db
 const taskImage = (id) => {
-  return `${import.meta.env.BASE_URL}logo${id}.png`;
+  return `${import.meta.env.VITE_WEB_APP_BASE_URL}logo${id}.png`;
 }
 
 const completeTask = async (taskId) => {
