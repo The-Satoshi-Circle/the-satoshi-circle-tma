@@ -30,24 +30,39 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: 'npm'
           cache-dependency-path: './'
+
       - name: Install dependencies
         run: npm install
+
       - name: Copy .env.production to .env
         run: cp .env.production .env
+
       - name: Build
         run: npm run build
+
+      # Verify the existence of the build files before proceeding
+      - name: Check build directory
+        run: |
+          if [ ! -d "./dist" ] || [ ! -f "./dist/index.html" ]; then
+            echo "Build directory or index.html missing!"
+            exit 1
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           path: './dist'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
