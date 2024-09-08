@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "vue-tsc -b && vite build --base='/the-satoshi-circle-tma/'",
     "preview": "vite preview"
   },
   "dependencies": {
