@@ -69,16 +69,16 @@ onMounted(() => {
     <div class="flex flex-col items-center p-3">
       <!-- Centered and 3D effect for currentAmount and jettonSymbol -->
       <div class="text-center flex flex-col items-center mt-10">
-        <div class="text-4xl sm:text-2xl text-white font-mono font-bold drop-shadow-lg">
+        <div class="text-4xl sm:text-2xl text-white font-mono font-bold">
           {{ store.currentAmount }}
         </div>
 
-        <div class="text-4xl sm:text-2xl text-orange-600 font-mono font-bold drop-shadow-lg">
+        <div class="text-4xl sm:text-2xl text-orange-600 font-mono font-bold">
           {{ jettonSymbol }}
         </div>
       </div>
 
-      <div class="text-center flex flex-col flex-1 justify-start mt-0">
+      <div class="text-center flex flex-col flex-1 justify-start mt-5">
         <div class="flex-1 flex flex-col justify-center content-center">
           <div class="flex justify-center">
             <div class="cursor-pointer" @click="handleClick">
@@ -93,7 +93,7 @@ onMounted(() => {
           <div class="font-mono font-bold">{{ store.user?.daily_taps }}/{{ store.maxDailyTaps }}</div>
         </div>
 
-        <div class="flex justify-center">
+        <div class="flex justify-center mt-3">
           <Button @click="sendTransaction()">
             Test transazione
           </Button>

@@ -26,7 +26,7 @@ onMounted(async () => {
 
 <template>
 
-  <div class="relative z-10 bg-cover bg-center" :style="{ backgroundImage: `url('/bg-image.webp')` }">
+  <div id="app-container" class="relative z-10 bg-cover bg-center">
     <div class="flex flex-col h-[100vh] bg-black/60">
       <div id="content" class="flex-1 flex-col overflow-auto" v-on:touchstart="preventCollapse(event)">
         <div id="header-container" v-if="store.ui.showHeader" class="fixed w-full">
@@ -50,4 +50,7 @@ onMounted(async () => {
 </template>
 
 <style>
+#app-container {
+  background-image: url('/bg-image.webp')
+}
 </style>

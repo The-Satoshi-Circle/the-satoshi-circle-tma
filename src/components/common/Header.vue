@@ -1,7 +1,7 @@
 <script setup>
 import { store } from '../../common/store';
 import { ref, computed, onMounted } from 'vue';
-import { CheckIcon, DocumentDuplicateIcon, WalletIcon } from '@heroicons/vue/24/solid';
+import { CheckIcon, DocumentDuplicateIcon, WalletIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import useClickOutside from '../../composables/useClickOutside.js';
 import TONIcon from './TONIcon.vue';
 
@@ -78,7 +78,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex my-1 mx-3 p-2 rounded-xl bg-gray-800">
+  <div class="flex my-2 mx-3 p-2 rounded-xl bg-gray-800">
     <RouterLink :to="'/profile'">
       <div class="flex rounded-full">
         <div class="ml-1 flex flex-col rounded-full aspect-square bg-black border border-stone-700 justify-center">
@@ -114,7 +114,7 @@ onMounted(async () => {
           <WalletIcon class="size-5"></WalletIcon>
         </button>
         <div id="wallet-dropdown" ref="componentRef" :class="walletDropdownClass"
-          class="text-center fixed mr-5 right-0 mt-1 w-[70vw] z-50 bg-stone-700 rounded-lg shadow-2xl font">
+          class="text-center fixed mr-5 right-0 mt-1 w-[70vw] z-50 bg-gray-700 rounded-lg shadow-2xl font">
           <div class="text-xs px-4 pt-5">Your TON wallet is connected!</div>
           <div class="text-xs px-4 pt-1 flex justify-center">
             <div class="bg-stone-800 py-1 px-3 rounded">
@@ -126,10 +126,17 @@ onMounted(async () => {
               <CheckIcon v-if="copied" class="size-4"></CheckIcon>
             </div>
           </div>
-          <ul class="mt-3 py-1 text-sm text-stone-400 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+          <ul class="mt-3 py-1 text-stone-300 text-sm dark:text-gray-200"
+            aria-labelledby="dropdownDefaultButton">
             <li>
-              <a href="#" class="block px-4 py-2 hover:bg-stone-800 dark:hover:text-white"
-                @click="disconnectWallet()">Disconnect wallet</a>
+              <a href="#" class="block px-4 py-2 hover:bg-stone-800 dark:hover:text-white" @click="disconnectWallet()">
+                <div class="flex justify-center">
+                  <XMarkIcon class="size-5"></XMarkIcon>
+                  <div class="flex-col justify-center ml-1">
+                    Disconnect
+                  </div>
+                </div>
+              </a>
             </li>
           </ul>
         </div>
