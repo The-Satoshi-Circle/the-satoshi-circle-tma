@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { store } from './common/store'
 
 import Navbar from './components/common/Navbar.vue'
+import Header from './components/common/Header.vue'
 
 const router = useRouter()
 
@@ -18,22 +19,30 @@ const preventCollapse = function (event) {
 onMounted(async () => {
   await store.init()
   loading.value = false;
+  store.ui.show();
   router.push('/home');
 })
 </script>
 
 <template>
 
-  <div class="relative z-10">
-    <div class="flex flex-col h-[100vh]">
-      <div id="content" class="flex-1 overflow-auto p-4" v-on:touchstart="preventCollapse(event)">
-        <router-view v-slot="{ Component }">
-          <keep-alive>
-            <component :is="Component" />
-          </keep-alive>
-        </router-view>
+  <div class="relative z-10 bg-cover bg-center" :style="{ backgroundImage: `url('/bg-image.webp')` }">
+    <div class="flex flex-col h-[100vh] bg-black/60">
+      <div id="content" class="flex-1 flex-col overflow-auto" v-on:touchstart="preventCollapse(event)">
+        <div id="header-container" v-if="store.ui.showHeader" class="fixed w-full">
+          <Header></Header>
+        </div>
+        <div class="flex-1 min-h-full pt-14">
+          <div class="min-h-full p-4">
+            <router-view v-slot="{ Component }">
+              <keep-alive>
+                <component :is="Component" />
+              </keep-alive>
+            </router-view>
+          </div>
+        </div>
       </div>
-      <div id="navbar-container" v-if="!loading" class="relative p-3 bg-black">
+      <div id="navbar-container" v-if="store.ui.showNavbar" class="relative p-3">
         <Navbar class="relative z-20"></Navbar>
       </div>
     </div>
@@ -41,15 +50,4 @@ onMounted(async () => {
 </template>
 
 <style>
-#navbar-container::before {
-  content: "";
-  position: absolute;
-  height: 40px;
-  top: -40px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
-  z-index: 10;
-}
 </style>

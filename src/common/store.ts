@@ -2,8 +2,10 @@ import { Reactive, reactive } from "vue";
 import { API } from "./store/api";
 import { User } from "../models/User";
 import { Telegram } from "./store/telegram";
+import { UI } from "./store/ui";
 
 interface Store {
+  ui: Reactive<typeof UI>;
   user: User | null;
   currentAmount: number;
   maxDailyTaps: number;
@@ -16,6 +18,7 @@ interface Store {
 
 export const store: Reactive<Store> = reactive<Store>({
   user: null,
+  ui: UI,
   currentAmount: 0,
   maxDailyTaps: 0,
   timeoutId: null,

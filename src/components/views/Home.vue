@@ -55,16 +55,6 @@ const isIconAnimated = ref(null);
 
 let unsubscribeModal = null;
 onMounted(() => {
-  store.telegram.initConnectWalletButton('ton-connect-button');
-
-  unsubscribeModal = store.telegram.tonConnectUI.onModalStateChange(
-    async (state) => {
-      if (state.status === 'closed' && state.closeReason === 'wallet-selected') {
-        await store.telegram.initWallet();
-      }
-    }
-  );
-
   animateTimeout.value = setTimeout(() => {
     isIconAnimated.value = false;
 
@@ -75,21 +65,10 @@ onMounted(() => {
 });
 </script>
 <template>
-  <div class="min-h-screen bg-cover bg-center" :style="{ backgroundImage: `url('/bg-image.webp')` }">
-    <div class="flex flex-col items-center p-3 bg-black/70 min-h-screen">
-      <div class="w-full flex justify-between items-center mb-4">
-        <div class="flex items-center p-3 bg-blue-500 rounded-lg shadow-lg" @click="showUsernameInstructions">
-          <img src="/SatoshiAvatar.png" alt="Satoshi" class="w-10 h-10 rounded-full mr-2" />
-          <span class="text-white text-sm font-black font-mono cursor-pointer">{{ store.user?.username ?? 'User' }}</span>
-        </div>
-
-        <div class="p-2 bg-blue-500 rounded-lg shadow-lg aspect-square text-white">
-          <ProfileMenu />
-        </div>
-      </div>
-
+  <div class="min-h-full">
+    <div class="flex flex-col items-center p-3">
       <!-- Centered and 3D effect for currentAmount and jettonSymbol -->
-      <div class="text-center flex flex-col items-center">
+      <div class="text-center flex flex-col items-center mt-10">
         <div class="text-4xl sm:text-2xl text-white font-mono font-bold drop-shadow-lg">
           {{ store.currentAmount }}
         </div>
@@ -114,17 +93,9 @@ onMounted(() => {
           <div class="font-mono font-bold">{{ store.user?.daily_taps }}/{{ store.maxDailyTaps }}</div>
         </div>
 
-        <div class="text-3xl uppercase p-5">
-          <button id="ton-connect-button" type="button"></button>
-        </div>
         <div class="flex justify-center">
           <Button @click="sendTransaction()">
             Test transazione
-          </Button>
-        </div>
-        <div class="flex justify-center mt-2">
-          <Button @click="openModal()">
-            Test bottone
           </Button>
         </div>
       </div>

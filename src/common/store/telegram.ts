@@ -2,10 +2,12 @@ import { Reactive, reactive } from "vue";
 import { TonConnectUI, TonConnectUiOptions, Account } from "@tonconnect/ui";
 import { SendTransactionRequest } from "@tonconnect/ui";
 import { InitDataParsed, retrieveLaunchParams } from '@telegram-apps/sdk';
-import { beginCell, toNano } from "@ton/ton";
+import { Address, beginCell, toNano, TonClient } from "@ton/ton";
+import { TonConnectSender } from "../../wrappers/TonConnectSender";
+import { NftCollection } from "../../wrappers/NftCollection";
 
 interface Telegram {
-  walletAccount: Account | null;
+  walletAccount: Account | null | undefined;
   tonConnectUI: TonConnectUI | null;
   initDataRaw: string | undefined | null;
   initData: InitDataParsed | undefined | null;
@@ -14,6 +16,7 @@ interface Telegram {
   initWallet: () => Promise<void>;
   initConnectWalletButton: (buttonRootId: string | null) => Promise<void>;
   sendTransaction: (transaction: SendTransactionRequest) => Promise<void>;
+  mintNft: (index: number, metadataUrl: string) => Promise<string>;
 }
 
 export const Telegram: Reactive<Telegram> = reactive<Telegram>({
@@ -33,6 +36,8 @@ export const Telegram: Reactive<Telegram> = reactive<Telegram>({
   },
   async initWallet() {
     await TonConnectUI.getWallets();
+
+    this.walletAccount = this.tonConnectUI?.account;
   },
   async initConnectWalletButton(buttonRootId: string | null) {
     this.tonConnectUI = new TonConnectUI({
@@ -41,8 +46,6 @@ export const Telegram: Reactive<Telegram> = reactive<Telegram>({
     });
 
     await this.initWallet();
-
-    this.walletAccount = this.tonConnectUI.account;
 
     this.tonConnectUI.uiOptions = {
       twaReturnUrl: import.meta.env.VITE_TELEGRAM_BOT_URL,
@@ -66,5 +69,42 @@ export const Telegram: Reactive<Telegram> = reactive<Telegram>({
     };
 
     await this.tonConnectUI?.sendTransaction(transaction);
+  },
+  async mintNft() {
+    // @todo: call api to get an NFT
+    const nft = {
+      name: "name",
+      description: "description",
+      image: "image"
+    };
+
+    const collectionAddress = import.meta.env.VITE_TON_CONTRACT_ADDRESS;
+    const address = Address.parse(collectionAddress);
+
+    const tonClient = new TonClient({
+        endpoint: 'https://toncenter.com/api/v2/jsonRPC'
+    });
+
+    const nftContractProvider = tonClient.open(NftCollection.createFromAddress(address));
+
+    const collectionData = await nftContractProvider.getCollectionData();
+    
+    if(this.tonConnectUI) {
+      await nftContractProvider.sendMintNft(
+        new TonConnectSender(this.tonConnectUI),
+        toNano('0.05'),
+        collectionData.nextItemIndex,
+        toNano('0.05'),
+        0,
+        Address.parse(this.walletAccount?.address ?? ''),
+        nft.name,
+        nft.description,
+        nft.image
+      )
+    }
+
+    const nftAddress = await nftContractProvider.getNftAddressByIndex(BigInt(collectionData.nextItemIndex + 1));
+
+    return `https://getgems.io/collection/${collectionAddress}/${nftAddress.toString()}`;;
   },
 });

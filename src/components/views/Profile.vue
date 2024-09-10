@@ -1,14 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { store } from '../../common/store';
 
 const router = useRouter();
 
 const userProfile = ref({
   username: '{ USER }',
-  fullName: 'Inserisci nickname...',
-  avatar: '/satoshi-avatar.png',  // Assicurati che il percorso sia corretto
-  bio: 'Inserisci bio...',
+  avatar: '/SatoshiAvatar.png',
 });
 
 const viewNFT = () => {
@@ -20,12 +19,12 @@ const viewNFT = () => {
 <template>
   <div class="min-h-screen bg-gray-100 flex flex-col items-center py-10">
     <!-- Avatar e Nome Utente -->
-    <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-lg">
+    <div class="bg-white shadow-lg rounded-lg p-6 w-80 max-w-lg">
       <div class="flex items-center space-x-6 mb-4">
         <img :src="userProfile.avatar" alt="Avatar" class="w-24 h-24 rounded-full shadow-md">
         <div>
-          <h2 class="text-2xl font-semibold text-gray-800">{{ userProfile.fullName }}</h2>
-          <p class="text-gray-600">@{{ userProfile.username }}</p>
+          <h2 class="text-2xl font-semibold text-gray-800">{{ store.user.firstName }} {{ store.user.lastName }}</h2>
+          <p class="text-gray-600">@{{ store.user.username }}</p>
         </div>
       </div>
       <!-- Biografia -->

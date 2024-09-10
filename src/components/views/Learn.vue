@@ -1,6 +1,6 @@
 <template>
   <div class="task-container">
-    <h2 class="title">Unisciti alla community di Satoshi su Telegram</h2>
+    <h2 class="text-black text-center text-2xl font-black mb-5">Unisciti alla community di Satoshi</h2>
 
 
     <div class="task-item" v-for="task in tasks">
@@ -66,7 +66,7 @@ onActivated(async () => {
 <style scoped>
 .task-container {
   max-width: 600px;
-  margin: 40px auto;
+  margin: auto;
   padding: 20px;
   background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
   /* Sfondo con gradiente grigio chiaro */
@@ -75,17 +75,6 @@ onActivated(async () => {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   /* Ombra più morbida e pronunciata */
   text-align: left;
-}
-
-.title {
-  font-size: 1.75rem;
-  /* Font più grande */
-  font-weight: bold;
-  color: #111827;
-  /* Colore del testo più scuro */
-  margin-bottom: 1.5rem;
-  text-align: center;
-  /* Allinea il titolo al centro */
 }
 
 .task-item {
