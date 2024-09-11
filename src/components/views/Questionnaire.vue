@@ -8,6 +8,8 @@ const isCompleted = ref(false);
 
 const nft = ref(null);
 
+let lastTransactionId = null;
+
 onMounted(async () => {
   const surveysResponse = await store.api.getSurveys();
 
@@ -82,13 +84,17 @@ const clearOtherAnswer = function (question) {
   }
 }
 
-const mintNft = () => {
+const mintNft = async () => {
   if (nft.value && !nft.value.minted) {
-    store.telegram.mintNft(
+    await store.telegram.mintNft(
       nft.value.name,
       nft.value.description,
       nft.value.image,
     )
+
+    await store.api.mintNft(nft.value.id);
+
+    nft.value.minted = true;
   }
 }
 
@@ -179,6 +185,9 @@ const submitAnswers = async () => {
 
           </div>
 
+          <div class="mt-5" v-if="nft.minted">
+            Puoi trovarlo nel tuo wallet!
+          </div>
           <div class="mt-2" v-if="!nft.minted">
             <Button @click="mintNft()">Claim</Button>
           </div>

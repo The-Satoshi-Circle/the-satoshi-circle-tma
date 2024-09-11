@@ -11,6 +11,7 @@ interface API {
   saveTask: (taskId: string) => Promise<Response | undefined>;
   getSurveys: () => Promise<Response | undefined>;
   saveSurvey: (surveyId: string, survey: string) => Promise<Response | undefined>;
+  mintNft: (nftId: string, survey: string) => Promise<Response | undefined>;
 }
 
 export const API: Reactive<API> = reactive<API>({
@@ -157,6 +158,22 @@ export const API: Reactive<API> = reactive<API>({
           body: JSON.stringify({
             survey: survey,
           }),
+        }
+      );
+
+      return response.json();
+    }
+  },
+  async mintNft(nftId: string): Promise<Response | undefined> {
+    if (this.apiToken) {
+      const response = await fetch(
+        import.meta.env.VITE_API_BASE_URL + "/mint/" + nftId,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiToken}`,
+          }
         }
       );
 
