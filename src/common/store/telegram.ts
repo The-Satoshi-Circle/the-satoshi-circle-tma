@@ -16,7 +16,7 @@ interface Telegram {
   initWallet: () => Promise<void>;
   initConnectWalletButton: (buttonRootId: string | null) => Promise<void>;
   sendTransaction: (transaction: SendTransactionRequest) => Promise<void>;
-  mintNft: (index: number, metadataUrl: string) => Promise<string>;
+  mintNft: (name: string, description: string, image: string) => Promise<string>;
 }
 
 export const Telegram: Reactive<Telegram> = reactive<Telegram>({
@@ -70,13 +70,7 @@ export const Telegram: Reactive<Telegram> = reactive<Telegram>({
 
     await this.tonConnectUI?.sendTransaction(transaction);
   },
-  async mintNft() {
-    // @todo: call api to get an NFT
-    const nft = {
-      name: "name",
-      description: "description",
-      image: "image"
-    };
+  async mintNft(name, description, image) {
 
     const collectionAddress = import.meta.env.VITE_TON_CONTRACT_ADDRESS;
     const address = Address.parse(collectionAddress);
@@ -97,9 +91,9 @@ export const Telegram: Reactive<Telegram> = reactive<Telegram>({
         toNano('0.05'),
         0,
         Address.parse(this.walletAccount?.address ?? ''),
-        nft.name,
-        nft.description,
-        nft.image
+        name,
+        description,
+        image
       )
     }
 

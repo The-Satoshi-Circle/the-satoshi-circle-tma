@@ -1,17 +1,20 @@
 <script setup>
-import { ref, onMounted} from 'vue';
+import { ref, onMounted } from 'vue';
 import Button from '../common/Button.vue';
 import { store } from '../../common/store';
 
 // Stato del completamento del questionario
 const isCompleted = ref(false);
 
+const nft = ref(null);
+
 onMounted(async () => {
   const surveysResponse = await store.api.getSurveys();
 
   // sappiamo già che il survey al momento è il primo
-  if(surveysResponse.surveys[0].done === true) {
+  if (surveysResponse.surveys[0].done === true) {
     isCompleted.value = true;
+    nft.value = surveysResponse.surveys[0].nft_collection_item;
   }
 });
 
@@ -68,7 +71,7 @@ const questions = ref([
 ]);
 
 const nextQuestion = () => {
-  if(questions.value[currentQuestionIndex.value].answer && questions.value[currentQuestionIndex.value].answer.length > 0) {
+  if (questions.value[currentQuestionIndex.value].answer && questions.value[currentQuestionIndex.value].answer.length > 0) {
     currentQuestionIndex.value++;
   }
 }
@@ -79,8 +82,18 @@ const clearOtherAnswer = function (question) {
   }
 }
 
+const mintNft = () => {
+  if (nft.value && !nft.value.minted) {
+    store.telegram.mintNft(
+      nft.value.name,
+      nft.value.description,
+      nft.value.image,
+    )
+  }
+}
+
 const submitAnswers = async () => {
-  if(questions.value[currentQuestionIndex.value].answer && questions.value[currentQuestionIndex.value].answer.length > 0) {
+  if (questions.value[currentQuestionIndex.value].answer && questions.value[currentQuestionIndex.value].answer.length > 0) {
     const survey = questions.value.map(question => {
       return {
         question: question.question,
@@ -90,8 +103,9 @@ const submitAnswers = async () => {
 
     const response = await store.api.saveSurvey(1, survey);
 
-    if(response.status === 'success') {
+    if (response.status === 'success') {
       isCompleted.value = true;
+      nft.value = response.nft;
     }
   }
 };
@@ -107,45 +121,35 @@ const submitAnswers = async () => {
           <p class="question-text">{{ questions[currentQuestionIndex].question }}</p>
 
           <div v-if="[3, 4, 5].includes(currentQuestionIndex)">
-            <div v-for="(option, optionIndex) in questions[currentQuestionIndex].options" :key="optionIndex" class="option-block">
+            <div v-for="(option, optionIndex) in questions[currentQuestionIndex].options" :key="optionIndex"
+              class="option-block">
               <label class="option-label">
-                <input
-                  type="checkbox"
-                  :value="option"
-                  v-model="questions[currentQuestionIndex].answer"
-                />
+                <input type="checkbox" :value="option" v-model="questions[currentQuestionIndex].answer" />
                 {{ option }}
               </label>
             </div>
           </div>
 
           <div v-else>
-            <div v-for="(option, optionIndex) in questions[currentQuestionIndex].options" :key="optionIndex" class="option-block">
+            <div v-for="(option, optionIndex) in questions[currentQuestionIndex].options" :key="optionIndex"
+              class="option-block">
               <label class="option-label">
-                <input
-                  type="radio"
-                  :name="'question-' + currentQuestionIndex"
-                  :value="option"
+                <input type="radio" :name="'question-' + currentQuestionIndex" :value="option"
                   v-model="questions[currentQuestionIndex].answer"
-                  @change="clearOtherAnswer(questions[currentQuestionIndex])"
-                />
+                  @change="clearOtherAnswer(questions[currentQuestionIndex])" />
                 {{ option }}
               </label>
             </div>
           </div>
 
           <div v-if="questions[currentQuestionIndex].answer === 'Altro' && ![3, 4, 5].includes(currentQuestionIndex)">
-            <input
-              type="text"
-              v-model="questions[currentQuestionIndex].otherAnswer"
-              placeholder="Specifica..."
-              class="input-other"
-              style="color: #000;"
-            />
+            <input type="text" v-model="questions[currentQuestionIndex].otherAnswer" placeholder="Specifica..."
+              class="input-other" style="color: #000;" />
           </div>
 
           <div class="navigation-buttons">
-            <Button v-if="currentQuestionIndex === questions.length - 1" @click="submitAnswers" class="button-submit">Invia Risposte</Button>
+            <Button v-if="currentQuestionIndex === questions.length - 1" @click="submitAnswers"
+              class="button-submit">Invia Risposte</Button>
           </div>
 
           <div>
@@ -158,8 +162,29 @@ const submitAnswers = async () => {
   </div>
 
   <!-- Messaggio di ringraziamento -->
-  <div v-else class="thank-you-message font-mono">
-    <p>Grazie per aver completato il questionario!</p>
+  <div v-else>
+    <div class="thank-you-message font-mono">
+      <p class="text-lg font-black">Grazie per aver completato il questionario!</p>
+
+      <div class="text-black mt-10">
+        <h4 class="text-lg uppercase">Ecco il tuo premio</h4>
+
+        <div class="mt-5">
+          <div class="text-xs">NFT #{{nft.id}}</div>
+          <div>{{ nft.name }}</div>
+          <div class="flex justify-center mt-1">
+            <div class="w-40">
+              <img :src="nft.image" class="w-50">
+            </div>
+
+          </div>
+
+          <div class="mt-2" v-if="!nft.minted">
+            <Button @click="mintNft()">Claim</Button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -167,12 +192,16 @@ const submitAnswers = async () => {
 <style scoped>
 .questionnaire-container {
 
-  background-color: #f4f4f9; /* Sfondo chiaro */
+  background-color: #f4f4f9;
+  /* Sfondo chiaro */
   padding: 20px;
-  border-radius: 16px; /* Bordi arrotondati */
+  border-radius: 16px;
+  /* Bordi arrotondati */
   max-width: 600px;
   margin: 40px auto;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Ombra coerente */}
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  /* Ombra coerente */
+}
 
 
 .questionnaire {
@@ -181,10 +210,14 @@ const submitAnswers = async () => {
   border-radius: 10px;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 600px;  /* Limita la larghezza massima del questionario */
-  height: 400px;  /* Imposta un'altezza fissa */
-  overflow-y: auto;  /* Aggiungi una barra di scorrimento verticale se il contenuto è troppo alto */
-  position: relative;  /* Posiziona il contenitore come riferimento per le frecce */
+  max-width: 600px;
+  /* Limita la larghezza massima del questionario */
+  height: 400px;
+  /* Imposta un'altezza fissa */
+  overflow-y: auto;
+  /* Aggiungi una barra di scorrimento verticale se il contenuto è troppo alto */
+  position: relative;
+  /* Posiziona il contenitore come riferimento per le frecce */
   display: flex;
   flex-direction: column;
 }
@@ -204,13 +237,15 @@ const submitAnswers = async () => {
   display: flex;
   align-items: center;
   font-size: 1rem;
-  color: #333; /* Assicurati che il colore del testo sia visibile */
+  color: #333;
+  /* Assicurati che il colore del testo sia visibile */
 }
 
 input[type="radio"],
 input[type="checkbox"] {
   margin-right: 0.5rem;
-  accent-color: #4CAF50; /* Modern style for inputs */
+  accent-color: #4CAF50;
+  /* Modern style for inputs */
 }
 
 .input-other {
@@ -264,11 +299,16 @@ button {
   background-color: #218838;
 }
 
-.slide-fade-enter-active, .slide-fade-leave-active {
+.slide-fade-enter-active,
+.slide-fade-leave-active {
   transition: all 0.3s ease;
 }
 
-.slide-fade-enter, .slide-fade-leave-to /* .slide-fade-leave-active in <2.1.8 */ {
+.slide-fade-enter,
+.slide-fade-leave-to
+
+/* .slide-fade-leave-active in <2.1.8 */
+  {
   transform: translateX(10px);
   opacity: 0;
 }
@@ -277,11 +317,14 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: absolute;  /* Posiziona le frecce in basso */
-  bottom: 20px;  /* Distanza dal fondo del contenitore */
+  position: absolute;
+  /* Posiziona le frecce in basso */
+  bottom: 20px;
+  /* Distanza dal fondo del contenitore */
   left: 0;
   right: 0;
-  padding: 0 2rem;  /* Spaziatura orizzontale per allineare con il padding del contenitore */
+  padding: 0 2rem;
+  /* Spaziatura orizzontale per allineare con il padding del contenitore */
 }
 
 .arrow {
@@ -309,14 +352,12 @@ button {
 
 .thank-you-message {
   text-align: center;
-  font-size: 1.5rem;
   color: #4CAF50;
   margin-top: 2rem;
-  background-color: #f4f4f9; /* Assicurati che lo sfondo sia chiaro */
+  background-color: #f4f4f9;
+  /* Assicurati che lo sfondo sia chiaro */
   padding: 20px;
-  border-radius: 16px; /* Per abbinare lo stile del questionario */
+  border-radius: 16px;
+  /* Per abbinare lo stile del questionario */
 }
-
-
-
 </style>
