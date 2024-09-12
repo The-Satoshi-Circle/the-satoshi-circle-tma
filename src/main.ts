@@ -15,6 +15,9 @@ import Home from "./components/views/Home.vue";
 import Questionnaire from './components/views/Questionnaire.vue';
 import Learn from './components/views/Learn.vue';
 import Frens from './components/views/Frens.vue';
+import Profile from './components/views/Profile.vue';
+import EarlyNFT from './components/views/EarlyNFT.vue';
+import AboutUs from './components/views/AboutUs.vue';
 
 const getBasePath = () => {
   const path = window.location.pathname;
@@ -28,9 +31,9 @@ const routes = [
   { path: '/learn', component: Learn },
   { path: '/frens', component: Frens },
   { path: '/questionnaire', component: Questionnaire },
-  { path: '/profile', component: () => import('../src/components/views/Profile.vue')},
-  { path: '/early-nft', component: () => import('../src/components/views/EarlyNFT.vue')},
-  { path: '/about-us', component: () => import('../src/components/views/AboutUs.vue')}  
+  { path: '/profile', component: Profile},
+  { path: '/early-nft', component: EarlyNFT},
+  { path: '/about-us', component: AboutUs}  
 ];
 
 const router = createRouter({
