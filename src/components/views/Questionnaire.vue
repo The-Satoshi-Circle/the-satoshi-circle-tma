@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onActivated } from 'vue';
 import Button from '../common/Button.vue';
 import { store } from '../../common/store';
 
@@ -10,7 +10,7 @@ const nft = ref(null);
 
 let lastTransactionId = null;
 
-onMounted(async () => {
+onActivated(async () => {
   const surveysResponse = await store.api.getSurveys();
 
   // sappiamo già che il survey al momento è il primo
@@ -86,15 +86,18 @@ const clearOtherAnswer = function (question) {
 
 const mintNft = async () => {
   if (nft.value && !nft.value.minted) {
-    await store.telegram.mintNft(
+    const response = await store.telegram.mintNft(
       nft.value.name,
       nft.value.description,
       nft.value.image,
     )
 
-    await store.api.mintNft(nft.value.id);
+    console.log(response);
 
-    nft.value.minted = true;
+    if (response) {
+      await store.api.mintNft(nft.value.id);
+      nft.value.minted = true;
+    }
   }
 }
 
@@ -176,7 +179,7 @@ const submitAnswers = async () => {
         <h4 class="text-lg uppercase">Ecco il tuo premio</h4>
 
         <div class="mt-5">
-          <div class="text-xs">NFT #{{nft.id}}</div>
+          <div class="text-xs">NFT #{{ nft.id }}</div>
           <div>{{ nft.name }}</div>
           <div class="flex justify-center mt-1">
             <div class="w-40">

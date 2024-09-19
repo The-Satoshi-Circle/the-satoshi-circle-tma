@@ -105,7 +105,7 @@ onMounted(async () => {
             <div
               class="absolute top-[-40%] right-0 mt-2 mr-8 h-3 w-3 z-50 bg-stone-700 transform rotate-[135deg] origin-bottom-right rounded-sm">
             </div>
-            <div class="text-xs p-3">Connect your TON wallet!</div>
+            <div class="text-xs p-3">Collega il tuo TON Wallet!</div>
           </div>
         </button>
       </div>
@@ -115,7 +115,7 @@ onMounted(async () => {
         </button>
         <div id="wallet-dropdown" ref="componentRef" :class="walletDropdownClass"
           class="text-center fixed mr-5 right-0 mt-1 w-[70vw] z-50 bg-gray-700 rounded-lg shadow-2xl font">
-          <div class="text-xs px-4 pt-5">Your TON wallet is connected!</div>
+          <div class="text-xs px-4 pt-5">Il tuo TON wallet è connesso!</div>
           <div class="text-xs px-4 pt-1 flex justify-center">
             <div class="bg-stone-800 py-1 px-3 rounded">
               {{ shortenAddress(store.telegram.walletAccount.publicKey) }}
@@ -133,7 +133,7 @@ onMounted(async () => {
                 <div class="flex justify-center">
                   <XMarkIcon class="size-5"></XMarkIcon>
                   <div class="flex-col justify-center ml-1">
-                    Disconnect
+                    Disconnetti
                   </div>
                 </div>
               </a>

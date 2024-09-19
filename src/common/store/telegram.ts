@@ -16,7 +16,7 @@ interface Telegram {
   initWallet: () => Promise<void>;
   initConnectWalletButton: (buttonRootId: string | null) => Promise<void>;
   sendTransaction: (transaction: SendTransactionRequest) => Promise<void>;
-  mintNft: (name: string, description: string, image: string) => Promise<string>;
+  mintNft: (name: string, description: string, image: string) => Promise<string | null>;
 }
 
 export const Telegram: Reactive<Telegram> = reactive<Telegram>({
@@ -84,8 +84,10 @@ export const Telegram: Reactive<Telegram> = reactive<Telegram>({
     const collectionData = await nftContractProvider.getCollectionData();
     
     if(this.tonConnectUI) {
+      const tonConnectSender = new TonConnectSender(this.tonConnectUI);
+
       await nftContractProvider.sendMintNft(
-        new TonConnectSender(this.tonConnectUI),
+        tonConnectSender,
         toNano('0.05'),
         collectionData.nextItemIndex,
         toNano('0.05'),
@@ -95,10 +97,14 @@ export const Telegram: Reactive<Telegram> = reactive<Telegram>({
         description,
         image
       )
+
+      if(tonConnectSender.lastTransactionResponse) {
+        const nftAddress = await nftContractProvider.getNftAddressByIndex(BigInt(collectionData.nextItemIndex + 1));
+
+        return `https://getgems.io/collection/${collectionAddress}/${nftAddress.toString()}`;;    
+      }
     }
 
-    const nftAddress = await nftContractProvider.getNftAddressByIndex(BigInt(collectionData.nextItemIndex + 1));
-
-    return `https://getgems.io/collection/${collectionAddress}/${nftAddress.toString()}`;;
+    return null;
   },
 });
